@@ -1,0 +1,16 @@
+{
+  "name": "@lib/simple_sqlite",
+  "version": "1.0.0",
+  "description": "Easily create SQLite queries in Node.js",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Gustavo Alejandro Perez S",
+  "license": "MIT",
+  "type": "commonjs",
+  "dependencies": {
+    "better-sqlite3": "^12.5.0"
+  }
+}
