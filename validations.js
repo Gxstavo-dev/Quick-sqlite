@@ -29,5 +29,5 @@ module.exports = {
   validate,
   arr,
   strings,
-  lengths
+  lengths,
 };

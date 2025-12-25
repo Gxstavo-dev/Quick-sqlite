@@ -13,10 +13,12 @@ function Connexion(path) {
   if (!conexion) {
     // creamos la db o si existe usarla y la guardarmos en conexion
     conexion = new Database(path);
-    console.log("Base de datos creada");
+    console.log("Database is ready");
     return conexion;
   } else {
-    throw new Error("No hay conexion con la base de datos");
+    throw new Error(
+      "An error occurred while trying to connect to the database."
+    );
   }
 }
 
@@ -31,7 +33,7 @@ function Table({ name, data = [] }) {
   const query = `CREATE TABLE IF NOT EXISTS ${name} (${data.join(", ")})`;
   try {
     conexion.prepare(query).run();
-    console.log("Consulta realizada con exito");
+    console.log("Successe query");
     // retornaremos mensajes de que si se completo o no
     return {
       sucess: true,
@@ -62,7 +64,7 @@ function Insert({ table, columns = [], data = [] }) {
 
   try {
     conexion.prepare(query).run(...data);
-    console.log("Consulta realizada con exito");
+    console.log("Successe query");
     // retornaremos mensajes de que si se completo o no
     return {
       sucess: true,
@@ -76,7 +78,7 @@ function Insert({ table, columns = [], data = [] }) {
 }
 
 // funcion para eliminar datos de una tabla
-function Delete({ table, where = [], data = [] }) {
+function Delete({ table, where = [], operator, data = [] }) {
   validate(table);
   strings(table);
   arr(data);
@@ -86,8 +88,38 @@ function Delete({ table, where = [], data = [] }) {
     strings(condition);
   }
 
+  // nuestro operador puede ser tanto como AND , OR y indefiido
+
+  let conditions;
+
+  // version mas organizada que la idea anterior de abajo
+  switch (operator) {
+    case "AND":
+      conditions = where.map((wh) => `${wh} = ?`).join(" AND ");
+      break;
+    case undefined:
+      conditions = where.map((wh) => `${wh} = ?`).join(" AND ");
+      break;
+    case "OR":
+      conditions = where.map((wh) => `${wh} = ?`).join(" OR ");
+      break;
+    default:
+      throw new Error("No se permite ingresar otro tipo de condicion");
+  }
+
+  //if (operator === "AND" || operator === undefined) {
+  //  conditions = where.map((wh) => `${wh} = ?`).join(" AND ");
+  //}
+  //
+  //if (operator === "OR") {
+  //  conditions = where.map((wh) => `${wh} = ?`).join(" OR ");
+  //}
+  //
+  //if (operator !== "AND" && operator !== "OR" && operator !== undefined) {
+  //  throw new Error("No se permite ingresar otro tipo de condicion");
+  //}
+
   // esto permite concatenar varios condiciones dentro del delete
-  const conditions = where.map((wh) => `${wh} = ?`).join(" AND ");
   const query = `DELETE FROM ${table} WHERE ${conditions} `;
 
   try {
@@ -140,7 +172,7 @@ function Show({ table, columns = [], data = [], where = [] }) {
   try {
     const lista = conexion.prepare(query).get(...data);
     // si no existe indica que no hau coincidencias
-    if (!lista.length > 0) console.log("No hay coincidencias");
+    if (!lista.length > 0) console.log("There are no matches");
 
     return {
       success: true,
@@ -181,7 +213,7 @@ function Update({
   validate(table); // si el nombre es valido => cumple el regex
   strings(table); // si es string
   // si son arrays
-  arr(columns); 
+  arr(columns);
   arr(where);
   arr(dataColumn), arr(dataCondition);
   // verificar el tamaño sea igual
@@ -196,6 +228,11 @@ function Update({
     strings(wh);
   }
 
+  // para evitar que la actualizacion de la consulta cometas un error
+  // tiene que ser de manera estricta
+  if (where.length === 0) {
+    throw new Error("UPDATE without WHERE is not allowed");
+  }
   // evitar inyecciones sqlite
   const condition1 = columns.map((col) => `${col} = ? `).join(", ");
   const condition2 = where.map((wh) => `${wh} = ? `).join(" AND ");
@@ -206,7 +243,7 @@ function Update({
     conexion.prepare(query).run([...dataColumn, ...dataCondition]);
     return {
       success: true,
-      message: "consulta con existe",
+      message: "Successe query",
     };
   } catch (error) {
     return {
@@ -223,5 +260,5 @@ module.exports = {
   Delete,
   ShowAll,
   Show,
-  Update
+  Update,
 };
