@@ -170,31 +170,42 @@ function Select({ table, columns = [], data = [], where = [], operator }) {
   arr(columns); // si lo que envia el usuario es una array
   arr(data); // si lo que envia el usuario es una array
   arr(where); // si lo que envia el usuario es una array
-  lengths(data, where); // si son del mismo tamañp
+  //lengths(data, where); // si son del mismo tamañp
   // permitir varias condiciones
 
   // nuestro operador puede ser tanto como AND , OR y indefiido
 
   let conditions;
 
-  switch (operator) {
-    case "AND":
-      conditions = where.map((wh) => `${wh} = ?`).join(" AND ");
-      break;
-    case undefined:
-      conditions = where.map((wh) => `${wh} = ?`).join(" AND ");
-      break;
-    case "OR":
-      conditions = where.map((wh) => `${wh} = ?`).join(" OR ");
-      break;
-    default:
-      throw new Error("Error only accepts condition OR , AND");
+  // error de logica , al verificar los tamaños del wheere a data cuando hacemos consultas
+  // con la condicion OR se rompe y da error porque no iba a tener el mismo tamaño
+
+  // si el operator OR y where  es igual a 1 parametro y los datos que ingresemos son mas de 1
+  if (operator === "OR" && where.length === 1 && data.length > 1) {
+    //  cambiamos todo lo que recibimos en la primera posicion del array where
+    // con un signo de interrogacion y lo concatenamos con un OR
+    conditions = data.map(() => `${where[0]} = ?`).join(" OR ");
+  } else {
+    // si no es el caso de arriba seguira normal
+    switch (operator) {
+      case "AND":
+        conditions = where.map((wh) => `${wh} = ?`).join(" AND ");
+        break;
+      case undefined:
+        conditions = where.map((wh) => `${wh} = ?`).join(" AND ");
+        break;
+      case "OR":
+        conditions = where.map((wh) => `${wh} = ?`).join(" OR ");
+        break;
+      default:
+        throw new Error("Error only accepts condition OR , AND");
+    }
   }
 
   const query = `SELECT ${columns} FROM ${table} WHERE ${conditions}`;
 
   try {
-    const lista = conexion.prepare(query).get(...data);
+    const lista = conexion.prepare(query).all(...data);
     // si no existe indica que no hau coincidencias
 
     let mensaje = "Matches found";
@@ -236,25 +247,33 @@ function SelectLike({ table, columns = [], where = [], data = [], operator }) {
   arr(columns);
   arr(data);
   arr(where);
-  lengths(where, data);
+  //lengths(where, data);
   for (const d of data) {
     validationLike(d);
   }
 
   let conditions;
 
-  switch (operator) {
-    case "AND":
-      conditions = where.map((wh) => `${wh} LIKE ? `).join(" AND ");
-      break;
-    case "OR":
-      conditions = where.map((wh) => `${wh} LIKE ? `).join(" OR ");
-      break;
-    case undefined:
-      conditions = where.map((wh) => `${wh} LIKE ? `).join(" AND ");
-      break;
-    default:
-      throw new Error("Error only accepts condition OR , AND");
+  // Mismo error de logica
+
+  if (operator === "OR" && where.length === 1 && data.length > 1) {
+    //  cambiamos todo lo que recibimos en la primera posicion del array where
+    // con un signo de interrogacion y lo concatenamos con un OR
+    conditions = data.map(() => `${where[0]} LIKE ? `).join(" OR ");
+  } else {
+    switch (operator) {
+      case "AND":
+        conditions = where.map((wh) => `${wh} LIKE ? `).join(" AND ");
+        break;
+      case "OR":
+        conditions = where.map((wh) => `${wh} LIKE ? `).join(" OR ");
+        break;
+      case undefined:
+        conditions = where.map((wh) => `${wh} LIKE ? `).join(" AND ");
+        break;
+      default:
+        throw new Error("Error only accepts condition OR , AND");
+    }
   }
 
   const query = `SELECT ${columns} FROM ${table} WHERE ${conditions}`;

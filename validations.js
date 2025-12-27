@@ -26,7 +26,9 @@ function lengths(arr1, arr2) {
 }
 
 function validationLike(text) {
-  if (!/^[%a-zA-Z0-9]*$/.test(text)) {
+  const valor = String(text);
+
+  if (!/^[a-zA-Z0-9 ]*$/.test(valor)) {
     throw new Error("Error de sintaxis no se aceptan esos tipos de simbolos");
   }
 }
