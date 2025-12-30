@@ -242,3 +242,60 @@ const tabla = sqlite.DropTable({
 ```
 
 Nota: Al momento de borrar la tabla sera de manera permanente
+
+### Alter table -> ADD COLUMN
+
+Funcion que nos permitira agregar columnas a una tabla
+
+```js
+const column = sqlite.AddColumn({
+  table: "usuarios",
+  addColumn: "Edad",
+  typedata: "INTEGER NOT NULL",
+});
+```
+
+Nota: Al momento de borrar la tabla sera de manera permanente
+
+### Renaname table
+
+Funcion que nos permitira cambiar el nombre de un tabla
+
+```js
+const nuevo_nombre = sqlite.RenameTable({
+  oldName: "usuarios",
+  newName: "alumnos",
+});
+
+console.log(nuevo_nombre);
+```
+
+### RenameColumn
+
+Funcion que nos permite cambiar el nombre de una columna
+
+```js
+const nombre_columna = sqlite.RenameColumn({
+  table: "alumnos",
+  oldColumn: "Edad",
+  newColumn: "AlumnEdad",
+});
+
+console.log(nombre_columna);
+```
+
+### Replace
+
+Funcion que nos permite insertar o cambiar un registro si la clave ya existe
+
+```js
+const replace = sqlite.Replace({
+  table: "alumnos",
+  columns: ["id", "nombre", "Edad"],
+  data: [2, "Angel", "20"],
+});
+
+console.log(replace);
+```
+
+Nota: Tienes que respetar la cantidad de columnas que tienes en tu base de datos , si ingresas menos datos tanto en data como en columns dara error porque falta definir todas las columnas

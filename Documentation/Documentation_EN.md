@@ -240,4 +240,62 @@ const table = sqlite.DropTable({
 });
 ```
 
-Note: Deleting a table is permanent.
+Note: Deleting a table is permanent
+
+### Alter table -> ADD COLUMN
+
+Function that allows us to add columns to a table
+
+```js
+const column = sqlite.AddColumn({
+  table: "users",
+  addColumn: "Age",
+  typedata: "INTEGER NOT NULL",
+});
+```
+
+Note: When deleting a table, it will be removed permanently
+
+### Rename table
+
+Function that allows us to change the name of a table
+
+```js
+const new_name = sqlite.RenameTable({
+  oldName: "users",
+  newName: "students",
+});
+
+console.log(new_name);
+```
+
+### RenameColumn
+
+Function that allows us to change the name of a column
+
+```js
+const new_column = sqlite.RenameColumn({
+  table: "users",
+  oldColumn: "Age",
+  newColumn: "studentAge",
+});
+
+console.log(new_column);
+```
+
+### Replace
+
+Function that allows us to insert or replace a record if the primary key already exists.
+
+```js
+const replace = sqlite.Replace({
+  table: "students",
+  columns: ["id", "name", "Age"],
+  data: [2, "Angel", "20"],
+});
+
+console.log(replace);
+```
+
+Note: You must respect the number of columns defined in your database.
+If you provide fewer values in data or columns, an error will occur because not all columns are defined.

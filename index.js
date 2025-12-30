@@ -399,6 +399,100 @@ function DropTable({ table }) {
   }
 }
 
+// funcion para agregar columnas a la tabla
+
+function AddColumn({ table, addColumn, typesdata }) {
+  strings(table);
+  validate(table);
+  strings(addColumn);
+
+  const query = `ALTER TABLE ${table} ADD COLUMN ${addColumn}  ${typesdata}`;
+
+  try {
+    conexion.prepare(query).run();
+    return {
+      success: true,
+      message: "The column add is success",
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: error,
+    };
+  }
+}
+
+// funcion para cambiar en nombre
+function RenameTable({ oldName, newName }) {
+  strings(oldName);
+  strings(newName);
+
+  const query = `ALTER TABLE ${oldName} RENAME TO ${newName}`;
+  try {
+    conexion.prepare(query).run();
+    return {
+      success: true,
+      message: "Changed name of table is success",
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: error,
+    };
+  }
+}
+
+// funcion para cambiar el nombre de una columna dentro de una tabla
+function RenameColumn({ table, oldColumn, newColumn }) {
+  strings(table);
+  validate(table);
+  strings(oldColumn);
+  strings(newColumn);
+
+  const query = `ALTER TABLE ${table} RENAME COLUMN ${oldColumn} TO ${newColumn}`;
+
+  try {
+    conexion.prepare(query).run();
+    return {
+      success: true,
+      message: `Changed name of column from table : ${table} is success`,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: error,
+    };
+  }
+}
+
+// funcion para insertar o cambiar un registro si la clave ya existe
+function Replace({ table, columns = [], data = [] }) {
+  validate(table);
+  strings(table);
+  arr(columns);
+  arr(data);
+
+  lengths(columns, data);
+
+  const incognite = data.map(() => ` ? `).join(", ");
+  const query = `REPLACE INTO ${table} (${columns.join(
+    ", "
+  )})  VALUES (${incognite})`;
+
+  try {
+    conexion.prepare(query).run(...data);
+    return {
+      success: true,
+      message: `The record was inserted or replaced in the table`,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: error,
+    };
+  }
+}
+
 module.exports = {
   Connexion,
   Table,
@@ -408,5 +502,9 @@ module.exports = {
   Select,
   SelectLike,
   Update,
+  AddColumn,
+  RenameTable,
+  RenameColumn,
+  Replace,
   DropTable,
 };
