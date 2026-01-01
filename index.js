@@ -493,6 +493,98 @@ function Replace({ table, columns = [], data = [] }) {
   }
 }
 
+/*
+
+
+los triggers solo se usan en tres tipos de eventos 
+- insert
+- update
+- delete
+
+CREATE TRIGGER ${name}
+${condition} ${event}
+ON ${table}
+FOR EACH ROW
+${}
+
+CREATE TRIGGER nombre_del_trigger
+[ BEFORE | AFTER ] evento
+ON nombre_de_la_tabla
+[ FOR EACH ROW ]
+BEGIN
+    -- Sentencias SQL que se ejecutarán
+END;
+
+
+*/
+
+// funcion que nos permite crear triggers esta en version cruda pero  funcional
+
+function Triggers({ name, condition, event, table, costum }) {
+  // comprobacion si es string y el nombre de la tabla y del trigger cumplen con el regex
+  strings(name);
+  validate(name);
+  strings(condition);
+  strings(event);
+  strings(table);
+  validate(table);
+  strings(costum);
+
+  // let para cambiar el valor dependiendo de que fue ingresado
+  let conditions;
+  let events;
+
+  // solo se permite BEFORE Y AFTER
+  switch (condition) {
+    case "BEFORE":
+      conditions = "BEFORE";
+      break;
+    case "AFTER":
+      conditions = "AFTER";
+      break;
+
+    default:
+      console.log("Only allowed BEFORE o AFTER");
+      break;
+  }
+
+  // SOLO SER PERMITE INSERT , UPDATE Y DELETE
+  switch (event) {
+    case "INSERT":
+      events = "INSERT";
+      break;
+    case "UPDATE":
+      events = "UPDATE";
+      break;
+    case "DELETE":
+      events = "DELETE";
+      break;
+    default:
+      console.log("The permitted events are INSERT,DELETE o UPDATE");
+      break;
+  }
+
+  const query = `CREATE TRIGGER ${name}
+  ${conditions} ${events}
+  ON ${table}
+  FOR EACH ROW
+  ${costum}
+  `;
+
+  try {
+    conexion.prepare(query).run();
+    return {
+      success: true,
+      mensaje: "Triggers is success",
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: error,
+    };
+  }
+}
+
 module.exports = {
   Connexion,
   Table,
@@ -507,4 +599,5 @@ module.exports = {
   RenameColumn,
   Replace,
   DropTable,
+  Triggers,
 };
